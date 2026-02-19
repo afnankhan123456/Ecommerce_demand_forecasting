@@ -29,27 +29,49 @@
 
 <h3>Predicted Units Sold: {{ prediction }}</h3>
 <h3>Status: {{ demand_status }}</h3>
-<h4>Recommended Actions:</h4>
-<p>{{ recommendation }}</p>
 
-<div style="width:600px;">
+<p style="max-width:800px;">
+Based on the current input parameters, the model predicts an estimated sales volume of 
+<strong>{{ prediction }}</strong> units. 
+This indicates a <strong>{{ demand_status }}</strong> market demand level.
+Strategic business actions should be taken accordingly to optimize revenue and avoid stock imbalance.
+</p>
+
+<h4>Recommended Business Actions:</h4>
+<ul>
+    <li>{{ recommendation }}</li>
+</ul>
+
+<div style="width:600px; margin-top:40px;">
     <canvas id="gaugeChart"></canvas>
+</div>
+
+<!-- Gauge Legend -->
+<div style="margin-top:20px;">
+    <h4>Demand Level Guide:</h4>
+    <p>
+        🔴 <strong>Red</strong> – Very Low Demand (Reduce stock, control costs)<br>
+        🟠 <strong>Orange</strong> – Low Demand (Monitor performance carefully)<br>
+        🟡 <strong>Yellow</strong> – Moderate Demand (Maintain balanced inventory)<br>
+        🟢 <strong>Light Green</strong> – Good Demand (Increase marketing efforts)<br>
+        🟢 <strong>Dark Green</strong> – Very High Demand (Increase inventory & scale ads)
+    </p>
 </div>
 
 <script>
     const predictionValue = {{ prediction }};
-    const maxValue = 5000;  // Adjust based on your dataset max
+    const maxValue = 5000;
 
     const data = {
-        labels: ['Poor', 'Fair', 'Good', 'Great', 'Excellent'],
+        labels: ['Very Low', 'Low', 'Moderate', 'High', 'Very High'],
         datasets: [{
             data: [1000, 1000, 1000, 1000, 1000],
             backgroundColor: [
-                '#dc3545',   // Red
-                '#fd7e14',   // Orange
-                '#ffc107',   // Yellow
-                '#20c997',   // Light Green
-                '#198754'    // Dark Green
+                '#dc3545',
+                '#fd7e14',
+                '#ffc107',
+                '#20c997',
+                '#198754'
             ],
             borderWidth: 0,
             circumference: 180,
@@ -80,7 +102,7 @@
             ctx.fill();
 
             ctx.beginPath();
-            ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+            ctx.arc(0, 0, 8, 0, 2 * Math.PI);
             ctx.fill();
 
             ctx.restore();
