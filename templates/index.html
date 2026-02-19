@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ecommerce Demand Forecast</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="font-family: Arial; padding:40px;">
+
+<h2>Ecommerce Demand Forecast Dashboard</h2>
+
+<form method="POST">
+    <input name="price" placeholder="Price"><br><br>
+    <input name="discount_percent" placeholder="Discount %"><br><br>
+    <input name="ad_spend" placeholder="Ad Spend"><br><br>
+    <input name="page_views" placeholder="Page Views"><br><br>
+    <input name="cart_additions" placeholder="Cart Additions"><br><br>
+    <input name="avg_session_time" placeholder="Avg Session Time"><br><br>
+    <input name="competitor_price" placeholder="Competitor Price"><br><br>
+    <input name="seasonality_index" placeholder="Seasonality Index"><br><br>
+    <input name="day_of_week" placeholder="Day of Week"><br><br>
+
+    <button type="submit">Predict</button>
+</form>
+
+{% if prediction %}
+    <h3>Predicted Units Sold: {{ prediction }}</h3>
+
+    <canvas id="myChart" width="400" height="200"></canvas>
+
+    <script>
+        const ctx = document.getElementById('myChart');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Predicted Units Sold'],
+                datasets: [{
+                    label: 'Units',
+                    data: [{{ prediction }}],
+                }]
+            }
+        });
+    </script>
+{% endif %}
+
+</body>
+</html>
