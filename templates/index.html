@@ -4,42 +4,52 @@
     <title>Ecommerce Demand Forecast</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body style="font-family: Arial; padding:40px;">
+
+<body style="font-family: Arial; padding:40px; background-color:#f4f6f9;">
 
 <h2>Ecommerce Demand Forecast Dashboard</h2>
 
 <form method="POST">
-    <input name="price" placeholder="Price"><br><br>
-    <input name="discount_percent" placeholder="Discount %"><br><br>
-    <input name="ad_spend" placeholder="Ad Spend"><br><br>
-    <input name="page_views" placeholder="Page Views"><br><br>
-    <input name="cart_additions" placeholder="Cart Additions"><br><br>
-    <input name="avg_session_time" placeholder="Avg Session Time"><br><br>
-    <input name="competitor_price" placeholder="Competitor Price"><br><br>
-    <input name="seasonality_index" placeholder="Seasonality Index"><br><br>
-    <input name="day_of_week" placeholder="Day of Week"><br><br>
+    <input name="price" placeholder="Price" required><br><br>
+    <input name="discount_percent" placeholder="Discount %" required><br><br>
+    <input name="ad_spend" placeholder="Ad Spend" required><br><br>
+    <input name="page_views" placeholder="Page Views" required><br><br>
+    <input name="cart_additions" placeholder="Cart Additions" required><br><br>
+    <input name="avg_session_time" placeholder="Avg Session Time" required><br><br>
+    <input name="competitor_price" placeholder="Competitor Price" required><br><br>
+    <input name="seasonality_index" placeholder="Seasonality Index" required><br><br>
+    <input name="day_of_week" placeholder="Day of Week" required><br><br>
 
     <button type="submit">Predict</button>
 </form>
 
 {% if prediction %}
-    <h3>Predicted Units Sold: {{ prediction }}</h3>
 
-    <canvas id="myChart" width="400" height="200"></canvas>
+<hr>
 
-    <script>
-        const ctx = document.getElementById('myChart');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Predicted Units Sold'],
-                datasets: [{
-                    label: 'Units',
-                    data: [{{ prediction }}],
-                }]
-            }
-        });
-    </script>
+<h3>Predicted Units Sold: {{ prediction }}</h3>
+<h3>Status: {{ demand_status }}</h3>
+
+<h4>Recommended Actions:</h4>
+<p>{{ recommendation }}</p>
+
+<canvas id="myChart" width="400" height="200"></canvas>
+
+<script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Predicted Units Sold'],
+            datasets: [{
+                label: 'Units',
+                data: [{{ prediction }}],
+            }]
+        }
+    });
+</script>
+
 {% endif %}
 
 </body>
