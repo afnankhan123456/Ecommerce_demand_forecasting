@@ -29,43 +29,75 @@
 
 <h3>Predicted Units Sold: {{ prediction }}</h3>
 <h3>Status: {{ demand_status }}</h3>
-
 <h4>Recommended Actions:</h4>
 <p>{{ recommendation }}</p>
 
-<div style="width:500px;">
+<div style="width:600px;">
     <canvas id="gaugeChart"></canvas>
 </div>
 
 <script>
     const predictionValue = {{ prediction }};
-    const maxValue = 5000;   // Adjust according to your dataset max
+    const maxValue = 5000;  // Adjust based on your dataset max
 
-    const ctx = document.getElementById('gaugeChart');
-
-    const demandColor =
-        predictionValue > 3000 ? "#28a745" :
-        predictionValue > 1500 ? "#ffc107" :
-        "#dc3545";
-
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            datasets: [{
-                data: [predictionValue, maxValue - predictionValue],
-                backgroundColor: [demandColor, "#e9ecef"],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            rotation: -90,
+    const data = {
+        labels: ['Poor', 'Fair', 'Good', 'Great', 'Excellent'],
+        datasets: [{
+            data: [1000, 1000, 1000, 1000, 1000],
+            backgroundColor: [
+                '#dc3545',   // Red
+                '#fd7e14',   // Orange
+                '#ffc107',   // Yellow
+                '#20c997',   // Light Green
+                '#198754'    // Dark Green
+            ],
+            borderWidth: 0,
             circumference: 180,
-            cutout: "70%",
+            rotation: 270,
+            cutout: '70%'
+        }]
+    };
+
+    const needlePlugin = {
+        id: 'needle',
+        afterDraw(chart) {
+            const {ctx, chartArea: {width, height}} = chart;
+            ctx.save();
+
+            const angle = Math.PI + (predictionValue / maxValue) * Math.PI;
+
+            const cx = chart.getDatasetMeta(0).data[0].x;
+            const cy = chart.getDatasetMeta(0).data[0].y;
+
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+
+            ctx.beginPath();
+            ctx.moveTo(0, -5);
+            ctx.lineTo(height / 2 - 20, 0);
+            ctx.lineTo(0, 5);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.restore();
+        }
+    };
+
+    new Chart(document.getElementById('gaugeChart'), {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
             plugins: {
                 legend: { display: false },
                 tooltip: { enabled: false }
             }
-        }
+        },
+        plugins: [needlePlugin]
     });
 </script>
 
