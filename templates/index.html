@@ -38,7 +38,7 @@
             gap: 15px;
         }
 
-        input {
+        input, select {
             padding: 10px;
             border-radius: 8px;
             border: none;
@@ -113,20 +113,21 @@
     <input name="avg_session_time" placeholder="Avg Session Time" required>
     <input name="competitor_price" placeholder="Competitor Price" required>
     <input name="seasonality_index" placeholder="Seasonality Index" required>
-    <select name="day_of_week" required>
-    <option value="">Select Day</option>
-    <option value="0">Monday</option>
-    <option value="1">Tuesday</option>
-    <option value="2">Wednesday</option>
-    <option value="3">Thursday</option>
-    <option value="4">Friday</option>
-    <option value="5">Saturday</option>
-    <option value="6">Sunday</option>
-</select>
 
+    <select name="day_of_week" required>
+        <option value="">Select Day</option>
+        <option value="0">Monday</option>
+        <option value="1">Tuesday</option>
+        <option value="2">Wednesday</option>
+        <option value="3">Thursday</option>
+        <option value="4">Friday</option>
+        <option value="5">Saturday</option>
+        <option value="6">Sunday</option>
+    </select>
+</div>  <!-- FIXED: form-grid properly closed -->
 
 <div class="center">
-<button type="submit">Predict Demand</button>
+    <button type="submit">Predict Demand</button>
 </div>
 
 </form>
@@ -250,4 +251,3 @@ new Chart(document.getElementById('gaugeChart'), {
 
 </body>
 </html>
-
