@@ -33,19 +33,38 @@
 <h4>Recommended Actions:</h4>
 <p>{{ recommendation }}</p>
 
-<canvas id="myChart" width="400" height="200"></canvas>
+<div style="width:500px;">
+    <canvas id="gaugeChart"></canvas>
+</div>
 
 <script>
-    const ctx = document.getElementById('myChart');
+    const predictionValue = {{ prediction }};
+    const maxValue = 5000;   // Adjust according to your dataset max
+
+    const ctx = document.getElementById('gaugeChart');
+
+    const demandColor =
+        predictionValue > 3000 ? "#28a745" :
+        predictionValue > 1500 ? "#ffc107" :
+        "#dc3545";
 
     new Chart(ctx, {
-        type: 'bar',
+        type: 'doughnut',
         data: {
-            labels: ['Predicted Units Sold'],
             datasets: [{
-                label: 'Units',
-                data: [{{ prediction }}],
+                data: [predictionValue, maxValue - predictionValue],
+                backgroundColor: [demandColor, "#e9ecef"],
+                borderWidth: 0
             }]
+        },
+        options: {
+            rotation: -90,
+            circumference: 180,
+            cutout: "70%",
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
         }
     });
 </script>
