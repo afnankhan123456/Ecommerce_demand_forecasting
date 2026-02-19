@@ -2,6 +2,7 @@ from flask import Flask, request, render_template
 import numpy as np
 import tensorflow as tf
 import joblib
+import os
 
 app = Flask(__name__)
 
@@ -10,6 +11,7 @@ model = tf.keras.models.load_model("demand_forecast_v1.keras")
 
 # Load scaler
 feature_scaler = joblib.load("feature_scaler.pkl")
+
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -32,36 +34,36 @@ def home():
 
         arr = np.array(features).reshape(1, -1)
 
-        # 🔥 SCALE INPUT (VERY IMPORTANT)
+        # Scale input
         arr_scaled = feature_scaler.transform(arr)
 
         result = model.predict(arr_scaled)
         prediction = round(float(result[0][0]), 2)
 
-        # 🔥 Business Logic Recommendation
+        # Business Logic
         if prediction > 3000:
             demand_status = "High Demand"
-            recommendation = """
-            • Increase inventory stock
-            • Increase ad budget
-            • Monitor supply chain to avoid stock-out
-            """
+            recommendation = [
+                "Increase inventory stock",
+                "Increase advertising budget",
+                "Monitor supply chain to prevent stock-outs"
+            ]
 
         elif prediction > 1500:
             demand_status = "Moderate Demand"
-            recommendation = """
-            • Maintain current inventory levels
-            • Monitor competitor pricing
-            • Optimize discount strategy
-            """
+            recommendation = [
+                "Maintain current inventory levels",
+                "Monitor competitor pricing",
+                "Optimize discount strategy"
+            ]
 
         else:
             demand_status = "Low Demand"
-            recommendation = """
-            • Increase discount offers
-            • Improve marketing campaigns
-            • Re-evaluate pricing strategy
-            """
+            recommendation = [
+                "Increase discount offers",
+                "Improve marketing campaigns",
+                "Re-evaluate pricing strategy"
+            ]
 
     return render_template(
         "index.html",
@@ -70,6 +72,8 @@ def home():
         demand_status=demand_status
     )
 
-if __name__ == "__main__":
-    app.run()
 
+# ✅ RENDER SAFE START
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
