@@ -65,23 +65,31 @@
             margin: 10px 0;
         }
 
-        .legend {
-            margin-top: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .legend span {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-
         .center {
             display: flex;
             justify-content: center;
+        }
+
+        .legend {
+            margin-top: 30px;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        ul {
+            margin-top: 10px;
         }
 
     </style>
@@ -123,25 +131,51 @@
 <h3>Status: {{ demand_status }}</h3>
 
 <p>
-Based on the current inputs, the model forecasts approximately 
-<strong>{{ prediction }}</strong> units to be sold. 
-This indicates a <strong>{{ demand_status }}</strong> demand level. 
-Strategic inventory and marketing adjustments are recommended to maximize revenue and prevent stock imbalance.
+The model estimates that approximately 
+<strong>{{ prediction }}</strong> units will be sold under the given market conditions. 
+This reflects a <strong>{{ demand_status }}</strong> scenario. 
+Strategic inventory planning and marketing optimization are recommended 
+to maximize revenue while minimizing stock imbalance risks.
 </p>
 
-<h4>Recommended Actions:</h4>
-<p>{{ recommendation }}</p>
+<h4>Recommended Business Actions:</h4>
+<ul>
+    <li>Increase inventory stock to meet expected demand.</li>
+    <li>Optimize advertising budget to capture additional market opportunity.</li>
+    <li>Monitor supply chain operations to prevent potential stock-outs.</li>
+</ul>
 
 <div class="center" style="margin-top:40px;">
     <canvas id="gaugeChart" style="max-width:500px;"></canvas>
 </div>
 
 <div class="legend">
-    <p><span style="background:#dc3545"></span> Very Low Demand – Reduce stock & control expenses</p>
-    <p><span style="background:#fd7e14"></span> Low Demand – Monitor carefully</p>
-    <p><span style="background:#ffc107"></span> Moderate Demand – Maintain balance</p>
-    <p><span style="background:#20c997"></span> High Demand – Increase marketing</p>
-    <p><span style="background:#198754"></span> Very High Demand – Scale inventory & ads</p>
+    <h4>Gauge Color Indicators:</h4>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#dc3545;"></div>
+        <strong>Red</strong>&nbsp;– Very Low Demand (Reduce inventory and control costs)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#fd7e14;"></div>
+        <strong>Orange</strong>&nbsp;– Low Demand (Monitor product performance carefully)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#ffc107;"></div>
+        <strong>Yellow</strong>&nbsp;– Moderate Demand (Maintain balanced inventory and marketing spend)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#20c997;"></div>
+        <strong>Light Green</strong>&nbsp;– High Demand (Increase advertising and stock availability)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#198754;"></div>
+        <strong>Dark Green</strong>&nbsp;– Very High Demand (Scale operations and maximize revenue potential)
+    </div>
 </div>
 
 </div>
