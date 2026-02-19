@@ -36,7 +36,7 @@ def home():
         arr_scaled = feature_scaler.transform(arr)
 
         result = model.predict(arr_scaled)
-        prediction = float(result[0][0])
+        prediction = round(float(result[0][0]), 2)
 
         # 🔥 Business Logic Recommendation
         if prediction > 3000:
@@ -72,3 +72,4 @@ def home():
 
 if __name__ == "__main__":
     app.run()
+
