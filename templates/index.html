@@ -113,8 +113,17 @@
     <input name="avg_session_time" placeholder="Avg Session Time" required>
     <input name="competitor_price" placeholder="Competitor Price" required>
     <input name="seasonality_index" placeholder="Seasonality Index" required>
-    <input name="day_of_week" placeholder="Day of Week" required>
-</div>
+    <select name="day_of_week" required>
+    <option value="">Select Day</option>
+    <option value="0">Monday</option>
+    <option value="1">Tuesday</option>
+    <option value="2">Wednesday</option>
+    <option value="3">Thursday</option>
+    <option value="4">Friday</option>
+    <option value="5">Saturday</option>
+    <option value="6">Sunday</option>
+</select>
+
 
 <div class="center">
 <button type="submit">Predict Demand</button>
@@ -241,3 +250,4 @@ new Chart(document.getElementById('gaugeChart'), {
 
 </body>
 </html>
+
