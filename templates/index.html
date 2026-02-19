@@ -3,127 +3,207 @@
 <head>
     <title>Ecommerce Demand Forecast</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: white;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #10b981;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #059669;
+        }
+
+        .result-section h3 {
+            margin: 10px 0;
+        }
+
+        .legend {
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .legend span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .center {
+            display: flex;
+            justify-content: center;
+        }
+
+    </style>
 </head>
 
-<body style="font-family: Arial; padding:40px; background-color:#f4f6f9;">
+<body>
+
+<div class="container">
 
 <h2>Ecommerce Demand Forecast Dashboard</h2>
 
+<div class="card">
 <form method="POST">
-    <input name="price" placeholder="Price" required><br><br>
-    <input name="discount_percent" placeholder="Discount %" required><br><br>
-    <input name="ad_spend" placeholder="Ad Spend" required><br><br>
-    <input name="page_views" placeholder="Page Views" required><br><br>
-    <input name="cart_additions" placeholder="Cart Additions" required><br><br>
-    <input name="avg_session_time" placeholder="Avg Session Time" required><br><br>
-    <input name="competitor_price" placeholder="Competitor Price" required><br><br>
-    <input name="seasonality_index" placeholder="Seasonality Index" required><br><br>
-    <input name="day_of_week" placeholder="Day of Week" required><br><br>
 
-    <button type="submit">Predict</button>
+<div class="form-grid">
+    <input name="price" placeholder="Price" required>
+    <input name="discount_percent" placeholder="Discount %" required>
+    <input name="ad_spend" placeholder="Ad Spend" required>
+    <input name="page_views" placeholder="Page Views" required>
+    <input name="cart_additions" placeholder="Cart Additions" required>
+    <input name="avg_session_time" placeholder="Avg Session Time" required>
+    <input name="competitor_price" placeholder="Competitor Price" required>
+    <input name="seasonality_index" placeholder="Seasonality Index" required>
+    <input name="day_of_week" placeholder="Day of Week" required>
+</div>
+
+<div class="center">
+<button type="submit">Predict Demand</button>
+</div>
+
 </form>
+</div>
 
 {% if prediction %}
 
-<hr>
+<div class="card result-section">
 
 <h3>Predicted Units Sold: {{ prediction }}</h3>
 <h3>Status: {{ demand_status }}</h3>
 
-<p style="max-width:800px;">
-Based on the current input parameters, the model predicts an estimated sales volume of 
-<strong>{{ prediction }}</strong> units. 
-This indicates a <strong>{{ demand_status }}</strong> market demand level.
-Strategic business actions should be taken accordingly to optimize revenue and avoid stock imbalance.
+<p>
+Based on the current inputs, the model forecasts approximately 
+<strong>{{ prediction }}</strong> units to be sold. 
+This indicates a <strong>{{ demand_status }}</strong> demand level. 
+Strategic inventory and marketing adjustments are recommended to maximize revenue and prevent stock imbalance.
 </p>
 
-<h4>Recommended Business Actions:</h4>
-<ul>
-    <li>{{ recommendation }}</li>
-</ul>
+<h4>Recommended Actions:</h4>
+<p>{{ recommendation }}</p>
 
-<div style="width:600px; margin-top:40px;">
-    <canvas id="gaugeChart"></canvas>
+<div class="center" style="margin-top:40px;">
+    <canvas id="gaugeChart" style="max-width:500px;"></canvas>
 </div>
 
-<!-- Gauge Legend -->
-<div style="margin-top:20px;">
-    <h4>Demand Level Guide:</h4>
-    <p>
-        🔴 <strong>Red</strong> – Very Low Demand (Reduce stock, control costs)<br>
-        🟠 <strong>Orange</strong> – Low Demand (Monitor performance carefully)<br>
-        🟡 <strong>Yellow</strong> – Moderate Demand (Maintain balanced inventory)<br>
-        🟢 <strong>Light Green</strong> – Good Demand (Increase marketing efforts)<br>
-        🟢 <strong>Dark Green</strong> – Very High Demand (Increase inventory & scale ads)
-    </p>
+<div class="legend">
+    <p><span style="background:#dc3545"></span> Very Low Demand – Reduce stock & control expenses</p>
+    <p><span style="background:#fd7e14"></span> Low Demand – Monitor carefully</p>
+    <p><span style="background:#ffc107"></span> Moderate Demand – Maintain balance</p>
+    <p><span style="background:#20c997"></span> High Demand – Increase marketing</p>
+    <p><span style="background:#198754"></span> Very High Demand – Scale inventory & ads</p>
+</div>
+
 </div>
 
 <script>
-    const predictionValue = {{ prediction }};
-    const maxValue = 5000;
+const predictionValue = {{ prediction }};
+const maxValue = 5000;
 
-    const data = {
-        labels: ['Very Low', 'Low', 'Moderate', 'High', 'Very High'],
-        datasets: [{
-            data: [1000, 1000, 1000, 1000, 1000],
-            backgroundColor: [
-                '#dc3545',
-                '#fd7e14',
-                '#ffc107',
-                '#20c997',
-                '#198754'
-            ],
-            borderWidth: 0,
-            circumference: 180,
-            rotation: 270,
-            cutout: '70%'
-        }]
-    };
+const data = {
+    datasets: [{
+        data: [1000,1000,1000,1000,1000],
+        backgroundColor: ['#dc3545','#fd7e14','#ffc107','#20c997','#198754'],
+        borderWidth: 0,
+        circumference: 180,
+        rotation: 270,
+        cutout: '70%'
+    }]
+};
 
-    const needlePlugin = {
-        id: 'needle',
-        afterDraw(chart) {
-            const {ctx, chartArea: {width, height}} = chart;
-            ctx.save();
+const needlePlugin = {
+    id: 'needle',
+    afterDraw(chart) {
+        const {ctx, chartArea: {height}} = chart;
+        ctx.save();
 
-            const angle = Math.PI + (predictionValue / maxValue) * Math.PI;
+        const angle = Math.PI + (predictionValue / maxValue) * Math.PI;
 
-            const cx = chart.getDatasetMeta(0).data[0].x;
-            const cy = chart.getDatasetMeta(0).data[0].y;
+        const cx = chart.getDatasetMeta(0).data[0].x;
+        const cy = chart.getDatasetMeta(0).data[0].y;
 
-            ctx.translate(cx, cy);
-            ctx.rotate(angle);
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
 
-            ctx.beginPath();
-            ctx.moveTo(0, -5);
-            ctx.lineTo(height / 2 - 20, 0);
-            ctx.lineTo(0, 5);
-            ctx.fillStyle = 'black';
-            ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, -4);
+        ctx.lineTo(height / 2 - 20, 0);
+        ctx.lineTo(0, 4);
+        ctx.fillStyle = 'white';
+        ctx.fill();
 
-            ctx.beginPath();
-            ctx.arc(0, 0, 8, 0, 2 * Math.PI);
-            ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, 0, 6, 0, 2 * Math.PI);
+        ctx.fill();
 
-            ctx.restore();
-        }
-    };
+        ctx.restore();
+    }
+};
 
-    new Chart(document.getElementById('gaugeChart'), {
-        type: 'doughnut',
-        data: data,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false }
-            }
-        },
-        plugins: [needlePlugin]
-    });
+new Chart(document.getElementById('gaugeChart'), {
+    type: 'doughnut',
+    data: data,
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+    },
+    plugins: [needlePlugin]
+});
 </script>
 
 {% endif %}
+
+</div>
 
 </body>
 </html>
