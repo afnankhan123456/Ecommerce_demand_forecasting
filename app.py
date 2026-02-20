@@ -8,6 +8,9 @@ import io
 
 app = Flask(__name__)
 
+# 🔥 10MB FILE SIZE LIMIT
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+
 # Load model
 model = tf.keras.models.load_model("demand_forecast_v1.keras")
 
@@ -20,7 +23,7 @@ def home():
     prediction = None
     recommendation = None
     demand_status = None
-    batch_processed = False
+    error_message = None
 
     if request.method == "POST":
 
@@ -70,51 +73,61 @@ def home():
                     "Re-evaluate pricing strategy"
                 ]
 
-        # 🔥 ---- BATCH FILE PREDICTION (New Feature Added) ----
+        # 🔥 ---- BATCH FILE PREDICTION (With 10MB Limit) ----
         if "file" in request.files:
 
             file = request.files["file"]
 
             if file.filename != "":
-                df = pd.read_csv(file)
 
-                required_columns = [
-                    "price",
-                    "discount_percent",
-                    "ad_spend",
-                    "page_views",
-                    "cart_additions",
-                    "avg_session_time",
-                    "competitor_price",
-                    "seasonality_index",
-                    "day_of_week"
-                ]
+                # ✅ FILE SIZE CHECK
+                file.seek(0, os.SEEK_END)
+                file_size = file.tell()
+                file.seek(0)
 
-                X = df[required_columns]
+                if file_size > MAX_FILE_SIZE:
+                    error_message = "File size must be 10MB or less."
+                else:
+                    df = pd.read_csv(file)
 
-                X_scaled = feature_scaler.transform(X)
+                    required_columns = [
+                        "price",
+                        "discount_percent",
+                        "ad_spend",
+                        "page_views",
+                        "cart_additions",
+                        "avg_session_time",
+                        "competitor_price",
+                        "seasonality_index",
+                        "day_of_week"
+                    ]
 
-                predictions = model.predict(X_scaled)
-                predictions = np.round(predictions.flatten(), 2)
+                    X = df[required_columns]
 
-                df["predicted_units_sold"] = predictions
+                    X_scaled = feature_scaler.transform(X)
 
-                output = io.StringIO()
-                df.to_csv(output, index=False)
-                output.seek(0)
+                    predictions = model.predict(X_scaled)
+                    predictions = np.round(predictions.flatten(), 2)
 
-                return send_file(
-                    io.BytesIO(output.getvalue().encode()),
-                    mimetype="text/csv",
-                    as_attachment=True,
-                    download_name="predicted_output.csv"
-                )
+                    df["predicted_units_sold"] = predictions
+
+                    output = io.StringIO()
+                    df.to_csv(output, index=False)
+                    output.seek(0)
+
+                    return send_file(
+                        io.BytesIO(output.getvalue().encode()),
+                        mimetype="text/csv",
+                        as_attachment=True,
+                        download_name="predicted_output.csv"
+                    )
 
     return render_template(
         "index.html",
         prediction=prediction,
         recommendation=recommendation,
-        demand_status=demand_status
+        demand_status=demand_status,
+        error_message=error_message
     )
 
 
