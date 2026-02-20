@@ -91,6 +91,15 @@
         ul {
             margin-top: 10px;
         }
+
+        .error-box {
+            background: #7f1d1d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -100,7 +109,14 @@
 
 <h2>Ecommerce Demand Forecast Dashboard</h2>
 
-<!-- 🔥 SINGLE INPUT FORM (Existing Preserved) -->
+<!-- 🔥 ERROR MESSAGE DISPLAY -->
+{% if error_message %}
+<div class="error-box">
+    {{ error_message }}
+</div>
+{% endif %}
+
+<!-- 🔥 SINGLE INPUT FORM -->
 <div class="card">
 <form method="POST">
 
@@ -133,18 +149,16 @@
 </form>
 </div>
 
-
-<!-- 🔥 BATCH FILE UPLOAD (New Added, Nothing Removed) -->
+<!-- 🔥 BATCH FILE UPLOAD -->
 <div class="card">
     <h3>Batch CSV Prediction</h3>
     <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".csv" required>
+        <input type="file" name="file" id="fileInput" accept=".csv" required>
         <div class="center">
             <button type="submit">Upload CSV & Predict</button>
         </div>
     </form>
 </div>
-
 
 {% if prediction %}
 
@@ -156,12 +170,8 @@
 <p>
 The model estimates that approximately 
 <strong>{{ prediction }}</strong> units will be sold under the given market conditions. 
-This reflects a <strong>{{ demand_status }}</strong> scenario. 
-Strategic inventory planning and marketing optimization are recommended 
-to maximize revenue while minimizing stock imbalance risks.
+This reflects a <strong>{{ demand_status }}</strong> scenario.
 </p>
-
-<h4>Recommended Business Actions:</h4>
 
 {% if recommendation %}
 <ul>
@@ -173,35 +183,6 @@ to maximize revenue while minimizing stock imbalance risks.
 
 <div class="center" style="margin-top:40px;">
     <canvas id="gaugeChart" style="max-width:500px;"></canvas>
-</div>
-
-<div class="legend">
-    <h4>Gauge Color Indicators:</h4>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#dc3545;"></div>
-        <strong>Red</strong> – Very Low Demand (Reduce inventory and control costs)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#fd7e14;"></div>
-        <strong>Orange</strong> – Low Demand (Monitor product performance carefully)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#ffc107;"></div>
-        <strong>Yellow</strong> – Moderate Demand (Maintain balanced inventory and marketing spend)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#20c997;"></div>
-        <strong>Light Green</strong> – High Demand (Increase advertising and stock availability)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#198754;"></div>
-        <strong>Dark Green</strong> – Very High Demand (Scale operations and maximize revenue potential)
-    </div>
 </div>
 
 </div>
@@ -221,49 +202,33 @@ const data = {
     }]
 };
 
-const needlePlugin = {
-    id: 'needle',
-    afterDraw(chart) {
-        const {ctx, chartArea: {height}} = chart;
-        ctx.save();
-
-        const angle = Math.PI + (predictionValue / maxValue) * Math.PI;
-
-        const cx = chart.getDatasetMeta(0).data[0].x;
-        const cy = chart.getDatasetMeta(0).data[0].y;
-
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-
-        ctx.beginPath();
-        ctx.moveTo(0, -4);
-        ctx.lineTo(height / 2 - 20, 0);
-        ctx.lineTo(0, 4);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(0, 0, 6, 0, 2 * Math.PI);
-        ctx.fill();
-
-        ctx.restore();
-    }
-};
-
 new Chart(document.getElementById('gaugeChart'), {
     type: 'doughnut',
     data: data,
-    options: {
-        responsive: true,
-        plugins: { legend: { display: false } }
-    },
-    plugins: [needlePlugin]
+    options: { responsive: true, plugins: { legend: { display: false } } }
 });
 </script>
 
 {% endif %}
 
 </div>
+
+<!-- 🔥 FRONTEND FILE SIZE CHECK -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const fileInput = document.getElementById("fileInput");
+
+    if (fileInput) {
+        fileInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file && file.size > 10 * 1024 * 1024) {
+                alert("File size must be 10MB or less.");
+                this.value = "";
+            }
+        });
+    }
+});
+</script>
 
 </body>
 </html>
