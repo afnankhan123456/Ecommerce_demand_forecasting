@@ -61,10 +61,6 @@
             background: #059669;
         }
 
-        .result-section h3 {
-            margin: 10px 0;
-        }
-
         .center {
             display: flex;
             justify-content: center;
@@ -88,10 +84,6 @@
             margin-right: 10px;
         }
 
-        ul {
-            margin-top: 10px;
-        }
-
         .error-box {
             background: #7f1d1d;
             padding: 12px;
@@ -109,17 +101,15 @@
 
 <h2>Ecommerce Demand Forecast Dashboard</h2>
 
-<!-- 🔥 ERROR MESSAGE DISPLAY -->
 {% if error_message %}
 <div class="error-box">
     {{ error_message }}
 </div>
 {% endif %}
 
-<!-- 🔥 SINGLE INPUT FORM -->
+<!-- SINGLE INPUT -->
 <div class="card">
 <form method="POST">
-
 <div class="form-grid">
     <input name="price" placeholder="Price" required>
     <input name="discount_percent" placeholder="Discount %" required>
@@ -129,7 +119,6 @@
     <input name="avg_session_time" placeholder="Avg Session Time" required>
     <input name="competitor_price" placeholder="Competitor Price" required>
     <input name="seasonality_index" placeholder="Seasonality Index" required>
-
     <select name="day_of_week" required>
         <option value="">Select Day</option>
         <option value="0">Monday</option>
@@ -141,37 +130,29 @@
         <option value="6">Sunday</option>
     </select>
 </div>
-
 <div class="center">
     <button type="submit">Predict Demand</button>
 </div>
-
 </form>
 </div>
 
-<!-- 🔥 BATCH FILE UPLOAD -->
+<!-- BATCH UPLOAD -->
 <div class="card">
-    <h3>Batch CSV Prediction</h3>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" id="fileInput" accept=".csv" required>
-        <div class="center">
-            <button type="submit">Upload CSV & Predict</button>
-        </div>
-    </form>
+<h3>Batch CSV Prediction</h3>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" id="fileInput" accept=".csv" required>
+    <div class="center">
+        <button type="submit">Upload CSV & Predict</button>
+    </div>
+</form>
 </div>
 
 {% if prediction %}
 
-<div class="card result-section">
+<div class="card">
 
 <h3>Predicted Units Sold: {{ prediction }}</h3>
 <h3>Status: {{ demand_status }}</h3>
-
-<p>
-The model estimates that approximately 
-<strong>{{ prediction }}</strong> units will be sold under the given market conditions. 
-This reflects a <strong>{{ demand_status }}</strong> scenario.
-</p>
 
 {% if recommendation %}
 <ul>
@@ -183,6 +164,36 @@ This reflects a <strong>{{ demand_status }}</strong> scenario.
 
 <div class="center" style="margin-top:40px;">
     <canvas id="gaugeChart" style="max-width:500px;"></canvas>
+</div>
+
+<!-- FULL LEGEND RESTORED -->
+<div class="legend">
+    <h4>Gauge Color Indicators:</h4>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#dc3545;"></div>
+        <strong>Red</strong> – Very Low Demand (Reduce inventory and control costs)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#fd7e14;"></div>
+        <strong>Orange</strong> – Low Demand (Monitor performance carefully)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#ffc107;"></div>
+        <strong>Yellow</strong> – Moderate Demand (Maintain balanced inventory)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#20c997;"></div>
+        <strong>Light Green</strong> – High Demand (Increase marketing efforts)
+    </div>
+
+    <div class="legend-item">
+        <div class="legend-color" style="background:#198754;"></div>
+        <strong>Dark Green</strong> – Very High Demand (Scale operations & maximize revenue)
+    </div>
 </div>
 
 </div>
@@ -202,10 +213,39 @@ const data = {
     }]
 };
 
+const needlePlugin = {
+    id: 'needle',
+    afterDraw(chart) {
+        const {ctx, chartArea: {height}} = chart;
+        ctx.save();
+
+        const angle = Math.PI + (predictionValue / maxValue) * Math.PI;
+        const cx = chart.getDatasetMeta(0).data[0].x;
+        const cy = chart.getDatasetMeta(0).data[0].y;
+
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        ctx.beginPath();
+        ctx.moveTo(0, -4);
+        ctx.lineTo(height / 2 - 20, 0);
+        ctx.lineTo(0, 4);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 6, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.restore();
+    }
+};
+
 new Chart(document.getElementById('gaugeChart'), {
     type: 'doughnut',
     data: data,
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: { responsive: true, plugins: { legend: { display: false } } },
+    plugins: [needlePlugin]
 });
 </script>
 
@@ -213,11 +253,9 @@ new Chart(document.getElementById('gaugeChart'), {
 
 </div>
 
-<!-- 🔥 FRONTEND FILE SIZE CHECK -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const fileInput = document.getElementById("fileInput");
-
     if (fileInput) {
         fileInput.addEventListener("change", function () {
             const file = this.files[0];
