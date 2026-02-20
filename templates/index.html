@@ -92,6 +92,16 @@
             text-align: center;
             color: #fff;
         }
+
+        .prediction-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(16, 185, 129, 0.15);
+            border-left: 6px solid #10b981;
+            border-radius: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 
@@ -154,100 +164,29 @@
 <h3>Predicted Units Sold: {{ prediction }}</h3>
 <h3>Status: {{ demand_status }}</h3>
 
-{% if recommendation %}
-<ul>
-    {% for item in recommendation %}
-        <li>{{ item }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+<div class="prediction-box">
+    Based on the current input parameters, the model forecasts a demand of 
+    <strong>{{ prediction }}</strong> units. This indicates a 
+    <strong>{{ demand_status }}</strong> market condition.
 
-<div class="center" style="margin-top:40px;">
-    <canvas id="gaugeChart" style="max-width:500px;"></canvas>
-</div>
-
-<!-- FULL LEGEND RESTORED -->
-<div class="legend">
-    <h4>Gauge Color Indicators:</h4>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#dc3545;"></div>
-        <strong>Red</strong> – Very Low Demand (Reduce inventory and control costs)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#fd7e14;"></div>
-        <strong>Orange</strong> – Low Demand (Monitor performance carefully)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#ffc107;"></div>
-        <strong>Yellow</strong> – Moderate Demand (Maintain balanced inventory)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#20c997;"></div>
-        <strong>Light Green</strong> – High Demand (Increase marketing efforts)
-    </div>
-
-    <div class="legend-item">
-        <div class="legend-color" style="background:#198754;"></div>
-        <strong>Dark Green</strong> – Very High Demand (Scale operations & maximize revenue)
-    </div>
+    {% if demand_status == "High Demand" or demand_status == "Very High Demand" %}
+    The forecast suggests strong customer interest and purchasing activity. 
+    It is recommended to increase inventory levels to prevent stock-outs, 
+    allocate additional budget to advertising campaigns to maximize revenue opportunities, 
+    and closely monitor the supply chain to ensure smooth product availability.
+    {% elif demand_status == "Moderate Demand" %}
+    The demand appears stable. Maintain balanced inventory levels, 
+    optimize pricing strategies, and monitor performance metrics regularly 
+    to sustain consistent sales growth.
+    {% else %}
+    The forecast indicates lower market demand. 
+    Consider reducing excess inventory, controlling operational costs, 
+    optimizing marketing spend, and analyzing customer behavior 
+    to identify improvement opportunities.
+    {% endif %}
 </div>
 
 </div>
-
-<script>
-const predictionValue = {{ prediction }};
-const maxValue = 5000;
-
-const data = {
-    datasets: [{
-        data: [1000,1000,1000,1000,1000],
-        backgroundColor: ['#dc3545','#fd7e14','#ffc107','#20c997','#198754'],
-        borderWidth: 0,
-        circumference: 180,
-        rotation: 270,
-        cutout: '70%'
-    }]
-};
-
-const needlePlugin = {
-    id: 'needle',
-    afterDraw(chart) {
-        const {ctx, chartArea: {height}} = chart;
-        ctx.save();
-
-        const angle = Math.PI + (predictionValue / maxValue) * Math.PI;
-        const cx = chart.getDatasetMeta(0).data[0].x;
-        const cy = chart.getDatasetMeta(0).data[0].y;
-
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-
-        ctx.beginPath();
-        ctx.moveTo(0, -4);
-        ctx.lineTo(height / 2 - 20, 0);
-        ctx.lineTo(0, 4);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(0, 0, 6, 0, 2 * Math.PI);
-        ctx.fill();
-
-        ctx.restore();
-    }
-};
-
-new Chart(document.getElementById('gaugeChart'), {
-    type: 'doughnut',
-    data: data,
-    options: { responsive: true, plugins: { legend: { display: false } } },
-    plugins: [needlePlugin]
-});
-</script>
 
 {% endif %}
 
