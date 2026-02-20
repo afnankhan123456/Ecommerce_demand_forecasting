@@ -91,7 +91,6 @@
         ul {
             margin-top: 10px;
         }
-
     </style>
 </head>
 
@@ -101,6 +100,7 @@
 
 <h2>Ecommerce Demand Forecast Dashboard</h2>
 
+<!-- 🔥 SINGLE INPUT FORM (Existing Preserved) -->
 <div class="card">
 <form method="POST">
 
@@ -124,7 +124,7 @@
         <option value="5">Saturday</option>
         <option value="6">Sunday</option>
     </select>
-</div>  <!-- FIXED: form-grid properly closed -->
+</div>
 
 <div class="center">
     <button type="submit">Predict Demand</button>
@@ -132,6 +132,19 @@
 
 </form>
 </div>
+
+
+<!-- 🔥 BATCH FILE UPLOAD (New Added, Nothing Removed) -->
+<div class="card">
+    <h3>Batch CSV Prediction</h3>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv" required>
+        <div class="center">
+            <button type="submit">Upload CSV & Predict</button>
+        </div>
+    </form>
+</div>
+
 
 {% if prediction %}
 
@@ -149,11 +162,14 @@ to maximize revenue while minimizing stock imbalance risks.
 </p>
 
 <h4>Recommended Business Actions:</h4>
+
+{% if recommendation %}
 <ul>
-    <li>Increase inventory stock to meet expected demand.</li>
-    <li>Optimize advertising budget to capture additional market opportunity.</li>
-    <li>Monitor supply chain operations to prevent potential stock-outs.</li>
+    {% for item in recommendation %}
+        <li>{{ item }}</li>
+    {% endfor %}
 </ul>
+{% endif %}
 
 <div class="center" style="margin-top:40px;">
     <canvas id="gaugeChart" style="max-width:500px;"></canvas>
@@ -164,27 +180,27 @@ to maximize revenue while minimizing stock imbalance risks.
 
     <div class="legend-item">
         <div class="legend-color" style="background:#dc3545;"></div>
-        <strong>Red</strong>&nbsp;– Very Low Demand (Reduce inventory and control costs)
+        <strong>Red</strong> – Very Low Demand (Reduce inventory and control costs)
     </div>
 
     <div class="legend-item">
         <div class="legend-color" style="background:#fd7e14;"></div>
-        <strong>Orange</strong>&nbsp;– Low Demand (Monitor product performance carefully)
+        <strong>Orange</strong> – Low Demand (Monitor product performance carefully)
     </div>
 
     <div class="legend-item">
         <div class="legend-color" style="background:#ffc107;"></div>
-        <strong>Yellow</strong>&nbsp;– Moderate Demand (Maintain balanced inventory and marketing spend)
+        <strong>Yellow</strong> – Moderate Demand (Maintain balanced inventory and marketing spend)
     </div>
 
     <div class="legend-item">
         <div class="legend-color" style="background:#20c997;"></div>
-        <strong>Light Green</strong>&nbsp;– High Demand (Increase advertising and stock availability)
+        <strong>Light Green</strong> – High Demand (Increase advertising and stock availability)
     </div>
 
     <div class="legend-item">
         <div class="legend-color" style="background:#198754;"></div>
-        <strong>Dark Green</strong>&nbsp;– Very High Demand (Scale operations and maximize revenue potential)
+        <strong>Dark Green</strong> – Very High Demand (Scale operations and maximize revenue potential)
     </div>
 </div>
 
