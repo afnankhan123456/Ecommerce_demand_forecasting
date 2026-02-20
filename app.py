@@ -5,10 +5,14 @@ import joblib
 import os
 import pandas as pd
 import io
+from werkzeug.exceptions import RequestEntityTooLarge
 
 app = Flask(__name__)
 
-# 🔥 10MB FILE SIZE LIMIT
+# 🔥 HARD 10MB LIMIT (Flask Level)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
+
+# 🔥 10MB FILE SIZE LIMIT (Manual Check - already present)
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
 
 # Load model
@@ -16,6 +20,18 @@ model = tf.keras.models.load_model("demand_forecast_v1.keras")
 
 # Load scaler
 feature_scaler = joblib.load("feature_scaler.pkl")
+
+
+# 🔥 ERROR HANDLER FOR LARGE FILE
+@app.errorhandler(RequestEntityTooLarge)
+def handle_large_file(e):
+    return render_template(
+        "index.html",
+        prediction=None,
+        recommendation=None,
+        demand_status=None,
+        error_message="File size must be 10MB or less. Please upload a smaller file."
+    ), 413
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -27,7 +43,7 @@ def home():
 
     if request.method == "POST":
 
-        # 🔥 ---- SINGLE INPUT PREDICTION (Existing logic preserved) ----
+        # 🔥 ---- SINGLE INPUT PREDICTION ----
         if "price" in request.form:
 
             features = [
@@ -43,7 +59,6 @@ def home():
             ]
 
             arr = np.array(features).reshape(1, -1)
-
             arr_scaled = feature_scaler.transform(arr)
 
             result = model.predict(arr_scaled)
@@ -73,14 +88,14 @@ def home():
                     "Re-evaluate pricing strategy"
                 ]
 
-        # 🔥 ---- BATCH FILE PREDICTION (With 10MB Limit) ----
+        # 🔥 ---- BATCH FILE PREDICTION ----
         if "file" in request.files:
 
             file = request.files["file"]
 
             if file.filename != "":
 
-                # ✅ FILE SIZE CHECK
+                # Manual file size check
                 file.seek(0, os.SEEK_END)
                 file_size = file.tell()
                 file.seek(0)
@@ -103,7 +118,6 @@ def home():
                     ]
 
                     X = df[required_columns]
-
                     X_scaled = feature_scaler.transform(X)
 
                     predictions = model.predict(X_scaled)
